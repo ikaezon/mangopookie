@@ -26,7 +26,7 @@ function applyTime(date, timeId) {
   return setMinutes(setHours(date, slot.hours), slot.minutes)
 }
 
-export function DateTimePicker({ value, onChange, portalTarget }) {
+export function DateTimePicker({ value, onChange, portalTarget, compactTimeRow = false }) {
   const selected = useMemo(() => parseLocalDateTime(value), [value])
   const timeId = timeIdFromDate(selected)
   const [calendarOpen, setCalendarOpen] = useState(false)
@@ -69,7 +69,13 @@ export function DateTimePicker({ value, onChange, portalTarget }) {
 
       <fieldset>
         <legend className="mb-2 text-sm font-medium text-ink">Time</legend>
-        <div className="grid grid-cols-3 gap-2">
+        <div
+          className={
+            compactTimeRow
+              ? 'flex gap-2 overflow-x-auto overscroll-x-contain pb-0.5 [-ms-overflow-style:none] [scrollbar-width:none] sm:grid sm:grid-cols-3 sm:overflow-visible sm:pb-0 [&::-webkit-scrollbar]:hidden'
+              : 'grid grid-cols-3 gap-2'
+          }
+        >
           {TIME_OPTIONS.map((slot) => {
             const active = timeId === slot.id
             return (
@@ -80,8 +86,8 @@ export function DateTimePicker({ value, onChange, portalTarget }) {
                 aria-pressed={active}
                 className={
                   active
-                    ? 'min-h-[42px] rounded-[var(--radius-pill)] bg-rose px-2 py-2 text-xs font-semibold text-white shadow-sm sm:text-sm'
-                    : 'min-h-[42px] rounded-[var(--radius-pill)] border border-rose/20 bg-bg px-2 py-2 text-xs font-medium text-ink-muted transition-colors hover:border-rose/35 hover:text-ink sm:text-sm'
+                    ? `min-h-[42px] rounded-[var(--radius-pill)] bg-rose px-2 py-2 text-xs font-semibold text-white shadow-sm sm:text-sm${compactTimeRow ? ' max-sm:shrink-0' : ''}`
+                    : `min-h-[42px] rounded-[var(--radius-pill)] border border-rose/20 bg-bg px-2 py-2 text-xs font-medium text-ink-muted transition-colors hover:border-rose/35 hover:text-ink sm:text-sm${compactTimeRow ? ' max-sm:shrink-0' : ''}`
                 }
               >
                 {slot.label}

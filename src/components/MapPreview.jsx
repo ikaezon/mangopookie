@@ -26,7 +26,7 @@ function MapResizeFix({ containerRef }) {
 
     fix()
     const raf = requestAnimationFrame(fix)
-    const delays = [50, 200, 500].map((ms) => window.setTimeout(fix, ms))
+    const delayed = window.setTimeout(fix, 120)
 
     const el = containerRef?.current
     const observer =
@@ -37,7 +37,7 @@ function MapResizeFix({ containerRef }) {
 
     return () => {
       cancelAnimationFrame(raf)
-      delays.forEach(window.clearTimeout)
+      window.clearTimeout(delayed)
       observer?.disconnect()
     }
   }, [map, containerRef])
@@ -71,10 +71,10 @@ function VenueMap({ lat, lng, containerRef }) {
   )
 }
 
-export function MapPreview({ venue, compact = false }) {
+export function MapPreview({ venue, compact = false, tight = false }) {
   const { lat, lng } = venue.coordinates
   const containerRef = useRef(null)
-  const mapHeight = compact ? 108 : 180
+  const mapHeight = tight ? 72 : compact ? 108 : 180
 
   return (
     <article className="map-preview-root relative z-0 overflow-hidden rounded-[var(--radius-card)] border border-rose/15 bg-surface shadow-sm transition-shadow hover:shadow-md">
@@ -93,12 +93,12 @@ export function MapPreview({ venue, compact = false }) {
         href={venue.appleMapsUrl}
         target="_blank"
         rel="noopener noreferrer"
-        className="group flex items-start gap-3 p-4 transition-colors hover:bg-rose-soft/30 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-rose"
+        className={`group flex items-start gap-3 transition-colors hover:bg-rose-soft/30 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-rose ${tight ? 'p-3' : 'p-4'}`}
       >
         <MapPin className="mt-0.5 size-5 shrink-0 text-rose" weight="fill" aria-hidden />
         <div className="min-w-0 flex-1">
-          <p className="font-semibold text-ink">{venue.name}</p>
-          <p className="mt-0.5 text-sm text-ink-muted">{venue.address}</p>
+          {!tight && <p className="font-semibold text-ink">{venue.name}</p>}
+          <p className={`text-sm text-ink-muted ${tight ? '' : 'mt-0.5'}`}>{venue.address}</p>
           <p className="mt-1 text-xs font-medium text-rose-deep opacity-80 group-hover:opacity-100">
             Open in Apple Maps
           </p>
