@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { NoButtonTease } from './NoButtonTease'
 import { motion } from 'motion/react'
 import { Sparkle } from '@phosphor-icons/react'
 import { RunawayNoButton } from './RunawayNoButton'
@@ -109,6 +110,7 @@ export function Hero({ onYes }) {
   const yesRef = useRef(null)
   const reducedMotion = useReducedMotion()
   const [ctaLayoutReady, setCtaLayoutReady] = useState(false)
+  const [noTeaseLine, setNoTeaseLine] = useState(null)
 
   const handleCtaAnimationComplete = useCallback(() => {
     setCtaLayoutReady(true)
@@ -179,9 +181,15 @@ export function Hero({ onYes }) {
             custom={4}
             variants={stagger}
             onAnimationComplete={handleCtaAnimationComplete}
-            className="relative z-20 mt-10 flex w-full justify-center sm:justify-start"
+            className="relative z-20 mt-10 flex w-full flex-col items-center sm:items-start"
           >
-            <div className="flex min-h-[52px] items-center gap-4 sm:gap-6">
+            <div className="flex w-full justify-center sm:hidden">
+              <NoButtonTease line={noTeaseLine} placement="inline" />
+            </div>
+            <div className="hidden sm:block">
+              <NoButtonTease line={noTeaseLine} placement="fixed" />
+            </div>
+            <div className="flex min-h-[52px] items-center justify-center gap-4 sm:justify-start sm:gap-6">
               <motion.button
                 ref={yesRef}
                 type="button"
@@ -194,7 +202,7 @@ export function Hero({ onYes }) {
               </motion.button>
 
               {!reducedMotion && (
-                <RunawayNoButton layoutReady={ctaLayoutReady} />
+                <RunawayNoButton layoutReady={ctaLayoutReady} onTeaseLine={setNoTeaseLine} />
               )}
             </div>
           </motion.div>
