@@ -1,30 +1,382 @@
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
+@import "tailwindcss";
+@import "@fontsource/outfit/400.css";
+@import "@fontsource/outfit/500.css";
+@import "@fontsource/outfit/600.css";
+@import "@fontsource/outfit/700.css";
+@import "@fontsource/bodoni-moda/400.css";
+@import "@fontsource/bodoni-moda/500.css";
+@import "@fontsource/bodoni-moda/400-italic.css";
+@import "@fontsource/bodoni-moda/500-italic.css";
+@import "leaflet/dist/leaflet.css";
+@import "react-day-picker/style.css";
+
+@theme {
+  --font-sans: "Outfit", system-ui, sans-serif;
+  --font-display: "Bodoni Moda", "Didot", "Bodoni 72", Georgia, serif;
+
+  --color-bg: oklch(0.985 0.004 250);
+  --color-surface: oklch(0.995 0.003 250);
+  --color-ink: oklch(0.22 0.02 15);
+  --color-ink-muted: oklch(0.45 0.025 15);
+  --color-rose: oklch(0.58 0.18 12);
+  --color-rose-deep: oklch(0.48 0.16 12);
+  --color-rose-soft: oklch(0.94 0.04 12);
+  --color-rose-glow: oklch(0.72 0.14 12);
+  --color-rose-vivid: oklch(0.58 0.28 345);
+
+  --radius-card: 1rem;
+  --radius-pill: 9999px;
 }
 
-body {
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    @apply bg-bg text-ink font-sans antialiased;
+    margin: 0;
+    min-height: 100dvh;
+  }
+
+  ::selection {
+    background: oklch(0.58 0.18 12 / 0.2);
+  }
+}
+
+@layer utilities {
+  .safe-top {
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  .safe-x {
+    padding-left: env(safe-area-inset-left, 0px);
+    padding-right: env(safe-area-inset-right, 0px);
+  }
+
+  /* Use instead of safe-x + px-* together (safe-x alone overrides horizontal padding). */
+  .px-gutter {
+    padding-left: max(1.75rem, env(safe-area-inset-left, 0px));
+    padding-right: max(1.75rem, env(safe-area-inset-right, 0px));
+  }
+
+  @media (min-width: 640px) {
+    .px-gutter {
+      padding-left: max(1.5rem, env(safe-area-inset-left, 0px));
+      padding-right: max(1.5rem, env(safe-area-inset-right, 0px));
+    }
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .text-pretty {
+    text-wrap: pretty;
+  }
+
+  .font-display {
+    font-family: var(--font-display);
+  }
+
+  .hero-type {
+    max-width: min(100%, 36rem);
+  }
+
+  .hero-greeting {
+    font-family: var(--font-display);
+    font-size: clamp(3.25rem, 8vw, 5.5rem);
+    font-weight: 400;
+    font-style: italic;
+    line-height: 1.05;
+    letter-spacing: -0.01em;
+    color: var(--color-rose-vivid);
+    text-wrap: balance;
+  }
+
+  .hero-question {
+    font-family: var(--font-display);
+    font-size: clamp(1.5rem, 4.8vw, 3.35rem);
+    font-weight: 400;
+    font-style: italic;
+    line-height: 1.12;
+    letter-spacing: 0.01em;
+    color: var(--color-rose-deep);
+    white-space: nowrap;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .hero-greeting {
+      text-shadow: 0 2px 40px oklch(0.58 0.22 345 / 0.12);
+    }
+
+    .hero-question {
+      text-shadow: 0 2px 32px oklch(0.48 0.18 12 / 0.1);
+    }
+  }
+
+  .eurosummer-marquee {
+    animation: eurosummer-scroll 28s linear infinite;
+  }
+
+  .btn-shimmer::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      105deg,
+      transparent 35%,
+      oklch(1 0 0 / 0.35) 50%,
+      transparent 65%
+    );
+    transform: translateX(-120%);
+    animation: btn-shimmer-sweep 3.5s ease-in-out infinite;
+  }
+}
+
+@keyframes btn-shimmer-sweep {
+  0%,
+  72%,
+  100% {
+    transform: translateX(-120%);
+  }
+
+  28% {
+    transform: translateX(120%);
+  }
+}
+
+@keyframes eurosummer-scroll {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .btn-shimmer::after {
+    display: none;
+  }
+}
+
+.date-modal-dialog {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
   margin: 0;
-  min-height: 100vh;
-  font-family: system-ui, sans-serif;
-  line-height: 1.5;
+  max-height: none;
+  max-width: none;
+  width: 100%;
+  height: auto;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  overflow: visible;
 }
 
-main {
-  display: grid;
-  place-content: center;
-  min-height: 100vh;
-  text-align: center;
+.date-modal-dialog:open {
+  display: block;
+  overflow: hidden;
 }
 
-h1 {
-  margin: 0 0 0.5rem;
-  font-size: 2rem;
+.date-modal-dialog__center {
+  box-sizing: border-box;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+  padding-left: max(1.75rem, env(safe-area-inset-left, 0px));
+  padding-right: max(1.75rem, env(safe-area-inset-right, 0px));
+}
+
+@media (min-width: 640px) {
+  .date-modal-dialog__center {
+    padding-left: max(1rem, env(safe-area-inset-left, 0px));
+    padding-right: max(1rem, env(safe-area-inset-right, 0px));
+  }
+}
+
+dialog::backdrop {
+  background: oklch(0.15 0.02 15 / 0.45);
+  backdrop-filter: blur(4px);
+}
+
+/* —— Map preview (Leaflet + CARTO light) —— */
+.map-preview-root .venue-map.leaflet-container {
+  position: absolute;
+  inset: 0;
+  z-index: 1 !important;
+  height: 100% !important;
+  width: 100% !important;
+  font-family: var(--font-sans);
+  background: #f3efe8;
+}
+
+.map-preview-root .venue-map .leaflet-pane,
+.map-preview-root .venue-map .leaflet-layer,
+.map-preview-root .venue-map .leaflet-tile-pane {
+  z-index: 1 !important;
+}
+
+.map-preview-root .venue-map .leaflet-marker-pane {
+  z-index: 2 !important;
+}
+
+.map-preview-root .venue-map .leaflet-control-container {
+  z-index: 3 !important;
+}
+
+.venue-map .leaflet-control-attribution {
+  margin: 0;
+  padding: 2px 6px;
+  font-size: 9px;
+  line-height: 1.2;
+  background: oklch(1 0 0 / 0.72);
+  border-radius: 6px 0 0 0;
+  color: oklch(0.45 0.02 15);
+}
+
+.venue-map .leaflet-control-attribution a {
+  color: oklch(0.48 0.16 12);
+}
+
+.venue-map-pin {
+  background: transparent !important;
+  border: none !important;
+}
+
+.venue-map-pin-svg {
+  display: block;
+  overflow: visible;
+  filter: drop-shadow(0 2px 6px oklch(0.48 0.16 12 / 0.35));
+}
+
+.venue-map-pin-svg path {
+  fill: oklch(0.58 0.18 12);
+}
+
+/* —— Date picker (react-day-picker) —— */
+.date-picker-calendar {
+  --rdp-accent-color: oklch(0.58 0.18 12);
+  --rdp-accent-background-color: oklch(0.94 0.04 12);
+  --rdp-day-height: 38px;
+  --rdp-day-width: 38px;
+  --rdp-day_button-border-radius: 11px;
+  --rdp-selected-border: none;
+  --rdp-today-color: oklch(0.48 0.16 12);
+  width: 100%;
+  margin: 0 auto;
+}
+
+.calendar-popover-panel .rdp-month_caption,
+.date-picker-calendar .rdp-month_caption {
+  font-weight: 600;
+  color: oklch(0.22 0.02 15);
+}
+
+.calendar-popover-panel .rdp-weekday,
+.date-picker-calendar .rdp-weekday {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: oklch(0.45 0.025 15);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.calendar-popover-panel .rdp-day_button,
+.date-picker-calendar .rdp-day_button {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: oklch(0.22 0.02 15);
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.calendar-popover-panel .rdp-day_button:hover:not(:disabled),
+.date-picker-calendar .rdp-day_button:hover:not(:disabled) {
+  background: oklch(0.94 0.04 12);
+}
+
+.calendar-popover-panel .rdp-selected .rdp-day_button,
+.date-picker-calendar .rdp-selected .rdp-day_button {
+  background: oklch(0.58 0.18 12);
+  color: oklch(0.995 0.003 250);
   font-weight: 600;
 }
 
-p {
-  margin: 0;
-  color: #555;
+.calendar-popover-panel .rdp-today:not(.rdp-selected) .rdp-day_button,
+.date-picker-calendar .rdp-today:not(.rdp-selected) .rdp-day_button {
+  color: oklch(0.48 0.16 12);
+  font-weight: 600;
+}
+
+.calendar-popover-panel .rdp-disabled .rdp-day_button,
+.date-picker-calendar .rdp-disabled .rdp-day_button {
+  opacity: 0.35;
+}
+
+.calendar-popover-panel .rdp-chevron,
+.date-picker-calendar .rdp-chevron {
+  fill: oklch(0.58 0.18 12);
+}
+
+.calendar-popover-panel .rdp-button_previous,
+.calendar-popover-panel .rdp-button_next,
+.date-picker-calendar .rdp-button_previous,
+.date-picker-calendar .rdp-button_next {
+  border-radius: 10px;
+}
+
+.calendar-popover-panel .rdp-button_previous:hover,
+.calendar-popover-panel .rdp-button_next:hover,
+.date-picker-calendar .rdp-button_previous:hover,
+.date-picker-calendar .rdp-button_next:hover {
+  background: oklch(0.94 0.04 12);
+}
+
+.date-modal-panel {
+  max-height: calc(100dvh - 2rem);
+}
+
+.date-modal-body {
+  -webkit-overflow-scrolling: touch;
+}
+
+@media (max-width: 639px) {
+  .date-modal-panel {
+    max-height: calc(100dvh - 1.5rem);
+    min-height: min(88dvh, 780px);
+    height: min(88dvh, calc(100dvh - 1.5rem));
+  }
+
+  .date-modal-body {
+    flex: 1;
+    min-height: 0;
+    padding-bottom: 1.25rem;
+  }
+}
+
+.calendar-popover {
+  background: oklch(0.15 0.02 15 / 0.35);
+  backdrop-filter: blur(3px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  dialog::backdrop {
+    backdrop-filter: none;
+  }
 }
