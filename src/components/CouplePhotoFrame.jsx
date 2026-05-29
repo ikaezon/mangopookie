@@ -1,8 +1,6 @@
 import { motion } from 'motion/react'
-import { Heart } from '@phosphor-icons/react'
+import { Heart, ImageBroken } from '@phosphor-icons/react'
 import { useReducedMotion } from '../hooks/useReducedMotion'
-
-const PHOTO_SRC = '/couple-photo.png'
 
 export function CouplePhotoFrame({ className = '', compact = false }) {
   const reducedMotion = useReducedMotion()
@@ -37,20 +35,18 @@ export function CouplePhotoFrame({ className = '', compact = false }) {
         <motion.div
           animate={reducedMotion ? undefined : { y: [0, -10, 0] }}
           transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
-          className="relative overflow-hidden rounded-[calc(var(--radius-card)+8px)] bg-surface shadow-[0_24px_60px_-12px_oklch(0.58_0.18_12_/_0.28)] ring-1 ring-rose/20"
+          className="absolute inset-0 overflow-hidden rounded-[calc(var(--radius-card)+8px)] bg-[#e8e8e8] shadow-[0_24px_60px_-12px_oklch(0.58_0.18_12_/_0.28)] ring-1 ring-rose/20"
         >
-          <img
-            src={PHOTO_SRC}
-            alt="Kaevon and Taite"
-            className="h-full w-full object-cover object-center"
-            loading="eager"
-            decoding="async"
-          />
-
           <div
-            className="pointer-events-none absolute inset-0 bg-gradient-to-t from-ink/35 via-transparent to-rose-soft/10"
-            aria-hidden
-          />
+            className="flex h-full w-full flex-col items-center justify-center gap-2 bg-[#e8e8e8] px-4"
+            role="img"
+            aria-label="Image preview"
+          >
+            <ImageBroken className="size-10 text-[#a8a8a8]" weight="regular" aria-hidden />
+            <p className="max-w-[85%] truncate text-center text-[11px] leading-tight text-[#888]">
+              Image preview
+            </p>
+          </div>
 
           {!compact && (
             <motion.div
