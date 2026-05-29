@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react'
 import { motion } from 'motion/react'
 import { MapPreview } from './MapPreview'
 import { DateTimePicker } from './DateTimePicker'
+import { VenueSelect } from './VenueSelect'
 import { useReducedMotion } from '../hooks/useReducedMotion'
 
 export function DateModal({ open, onClose, onConfirm, venues, defaultVenueId, defaultDateTime }) {
@@ -10,19 +11,40 @@ export function DateModal({ open, onClose, onConfirm, venues, defaultVenueId, de
   const [selectedVenueId, setSelectedVenueId] = useState(defaultVenueId)
   const [dateTime, setDateTime] = useState(defaultDateTime)
   const [calendarPortalEl, setCalendarPortalEl] = useState(null)
+  const [panelReady, setPanelReady] = useState(false)
 
   useEffect(() => {
     const dialog = dialogRef.current
     if (!dialog) return
 
     if (open && !dialog.open) {
+      setPanelReady(false)
       dialog.showModal()
       setSelectedVenueId(defaultVenueId)
       setDateTime(defaultDateTime)
+      // iOS Safari auto-focuses the first control in a new dialog; native <select>
+      // opens its wheel picker immediately. Blur until the panel animation finishes.
+      requestAnimationFrame(() => {
+        const active = document.activeElement
+        if (active && active !== document.body && dialog.contains(active)) {
+          active.blur()
+        }
+      })
     } else if (!open && dialog.open) {
       dialog.close()
+      setPanelReady(false)
     }
   }, [open, defaultVenueId, defaultDateTime])
+
+  useEffect(() => {
+    if (!open) return
+    if (reducedMotion) {
+      setPanelReady(true)
+      return
+    }
+    const fallback = window.setTimeout(() => setPanelReady(true), 480)
+    return () => window.clearTimeout(fallback)
+  }, [open, reducedMotion])
 
   const selectedVenue = venues.find((v) => v.id === selectedVenueId) ?? venues[0]
 
@@ -53,6 +75,9 @@ export function DateModal({ open, onClose, onConfirm, venues, defaultVenueId, de
           initial={reducedMotion ? false : { opacity: 0, y: 16, scale: 0.97 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           transition={{ type: 'spring', stiffness: 360, damping: 30 }}
+          onAnimationComplete={() => {
+            if (open) setPanelReady(true)
+          }}
           className="date-modal-panel pointer-events-auto flex h-full max-h-[calc(100dvh-2rem)] w-full max-w-md flex-col overflow-hidden rounded-[calc(var(--radius-card)+4px)] border border-rose/15 bg-surface shadow-[0_24px_60px_-16px_oklch(0.58_0.18_12_/_0.25)]"
           onClick={(e) => e.stopPropagation()}
         >
@@ -71,18 +96,12 @@ export function DateModal({ open, onClose, onConfirm, venues, defaultVenueId, de
               <label htmlFor="venue-select" className="block text-sm font-medium text-ink">
                 Where
               </label>
-              <select
-                id="venue-select"
+              <VenueSelect
+                venues={venues}
                 value={selectedVenueId}
-                onChange={(e) => setSelectedVenueId(e.target.value)}
-                className="mt-2 w-full min-h-[52px] rounded-[var(--radius-card)] border border-rose/20 bg-bg px-4 py-3 text-base text-ink focus:border-rose focus:outline-none focus:ring-2 focus:ring-rose/25"
-              >
-                {venues.map((v) => (
-                  <option key={v.id} value={v.id}>
-                    {v.name}
-                  </option>
-                ))}
-              </select>
+                onChange={setSelectedVenueId}
+                disabled={!panelReady}
+              />
               <p className="mt-1.5 text-sm text-ink-muted">{selectedVenue.tagline}</p>
             </div>
 
