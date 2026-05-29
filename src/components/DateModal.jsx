@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react'
 import { motion } from 'motion/react'
 import { MapPreview } from './MapPreview'
 import { DateTimePicker } from './DateTimePicker'
+import { VenueSelect } from './VenueSelect'
 import { useReducedMotion } from '../hooks/useReducedMotion'
 
 export function DateModal({ open, onClose, onConfirm, venues, defaultVenueId, defaultDateTime }) {
@@ -19,6 +20,12 @@ export function DateModal({ open, onClose, onConfirm, venues, defaultVenueId, de
       dialog.showModal()
       setSelectedVenueId(defaultVenueId)
       setDateTime(defaultDateTime)
+      requestAnimationFrame(() => {
+        const active = document.activeElement
+        if (active && active !== document.body && dialog.contains(active)) {
+          active.blur()
+        }
+      })
     } else if (!open && dialog.open) {
       dialog.close()
     }
@@ -71,18 +78,11 @@ export function DateModal({ open, onClose, onConfirm, venues, defaultVenueId, de
               <label htmlFor="venue-select" className="block text-sm font-medium text-ink">
                 Where
               </label>
-              <select
-                id="venue-select"
+              <VenueSelect
+                venues={venues}
                 value={selectedVenueId}
-                onChange={(e) => setSelectedVenueId(e.target.value)}
-                className="mt-2 w-full min-h-[52px] rounded-[var(--radius-card)] border border-rose/20 bg-bg px-4 py-3 text-base text-ink focus:border-rose focus:outline-none focus:ring-2 focus:ring-rose/25"
-              >
-                {venues.map((v) => (
-                  <option key={v.id} value={v.id}>
-                    {v.name}
-                  </option>
-                ))}
-              </select>
+                onChange={setSelectedVenueId}
+              />
               <p className="mt-1.5 text-sm text-ink-muted">{selectedVenue.tagline}</p>
             </div>
 
