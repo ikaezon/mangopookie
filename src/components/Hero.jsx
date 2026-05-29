@@ -122,13 +122,13 @@ export function Hero({ onYes }) {
 
   return (
     <section
-      className="relative flex min-h-[100dvh] flex-col overflow-hidden safe-top safe-bottom safe-x"
+      className="relative flex min-h-[100svh] min-h-[100dvh] flex-col overflow-x-hidden bg-bg safe-top safe-x"
       aria-labelledby="hero-headline"
     >
       <BackgroundMesh reducedMotion={reducedMotion} />
       <FloatingHearts />
 
-      <div className="relative z-10 mx-auto flex w-full min-w-0 max-w-6xl flex-1 flex-col justify-center px-gutter py-12 lg:grid lg:grid-cols-[1.1fr_0.9fr] lg:items-center lg:gap-12 lg:px-10 lg:py-16">
+      <div className="relative z-10 mx-auto flex w-full min-w-0 max-w-6xl flex-1 flex-col justify-center px-gutter py-12 pb-[max(3rem,env(safe-area-inset-bottom,0px))] lg:grid lg:grid-cols-[1.1fr_0.9fr] lg:items-center lg:gap-12 lg:px-10 lg:py-16">
         <motion.div
           initial="hidden"
           animate="show"
@@ -194,7 +194,7 @@ export function Hero({ onYes }) {
               </motion.button>
 
               {!reducedMotion && (
-                <RunawayNoButton alignRef={yesRef} layoutReady={ctaLayoutReady} />
+                <RunawayNoButton layoutReady={ctaLayoutReady} />
               )}
             </div>
           </motion.div>

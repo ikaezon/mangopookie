@@ -34,10 +34,25 @@
     -moz-osx-font-smoothing: grayscale;
   }
 
+  html {
+    height: 100%;
+    background: var(--color-bg);
+  }
+
   body {
     @apply bg-bg text-ink font-sans antialiased;
     margin: 0;
+    min-height: 100%;
+    min-height: 100svh;
     min-height: 100dvh;
+    overflow-x: hidden;
+  }
+
+  #root {
+    min-height: 100%;
+    min-height: 100svh;
+    min-height: 100dvh;
+    background: var(--color-bg);
   }
 
   ::selection {
@@ -241,18 +256,8 @@ dialog::backdrop {
   z-index: 3 !important;
 }
 
-.venue-map .leaflet-control-attribution {
-  margin: 0;
-  padding: 2px 6px;
-  font-size: 9px;
-  line-height: 1.2;
-  background: oklch(1 0 0 / 0.72);
-  border-radius: 6px 0 0 0;
-  color: oklch(0.45 0.02 15);
-}
-
-.venue-map .leaflet-control-attribution a {
-  color: oklch(0.48 0.16 12);
+.map-preview-root .venue-map .leaflet-control-attribution {
+  display: none;
 }
 
 .venue-map-pin {
@@ -357,10 +362,15 @@ dialog::backdrop {
 }
 
 @media (max-width: 639px) {
+  .date-modal-dialog__center {
+    padding-top: max(0.75rem, env(safe-area-inset-top, 0px));
+    padding-bottom: max(1rem, env(safe-area-inset-bottom, 0px));
+  }
+
   .date-modal-panel {
-    max-height: calc(100dvh - 1.5rem);
-    min-height: min(88dvh, 780px);
-    height: min(88dvh, calc(100dvh - 1.5rem));
+    max-height: calc(100svh - 2rem - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+    min-height: 0;
+    height: auto;
   }
 
   .date-modal-body {

@@ -48,7 +48,7 @@ export function DateModal({ open, onClose, onConfirm, venues, defaultVenueId, de
         className="calendar-portal-mount pointer-events-none fixed inset-0 z-[9998]"
         aria-hidden
       />
-      <div className="date-modal-dialog__center pointer-events-none flex min-h-[100dvh] w-full items-center justify-center safe-top safe-bottom">
+      <div className="date-modal-dialog__center pointer-events-none flex min-h-[100svh] min-h-[100dvh] w-full items-center justify-center safe-top">
         <motion.div
           initial={reducedMotion ? false : { opacity: 0, y: 16, scale: 0.97 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}

@@ -4,7 +4,7 @@ import { useRunawayButton } from '../hooks/useRunawayButton'
 import { useReducedMotion } from '../hooks/useReducedMotion'
 import { noButton } from '../config/content'
 
-export function RunawayNoButton({ alignRef, layoutReady = true }) {
+export function RunawayNoButton({ layoutReady = true }) {
   const slotRef = useRef(null)
   const buttonRef = useRef(null)
   const [teaseIndex, setTeaseIndex] = useState(-1)
@@ -20,7 +20,6 @@ export function RunawayNoButton({ alignRef, layoutReady = true }) {
   const { x, y, opacity, shoveFromPointer } = useRunawayButton({
     buttonRef,
     slotRef,
-    alignRef,
     layoutReady,
     disabled: reducedMotion,
     onDodge: handleDodge,
@@ -33,7 +32,7 @@ export function RunawayNoButton({ alignRef, layoutReady = true }) {
 
   const handleNearTap = (e) => {
     preventClick(e)
-    if (reducedMotion) return
+    if (reducedMotion || e.pointerType === 'touch') return
     shoveFromPointer(e.clientX, e.clientY)
   }
 
@@ -53,30 +52,30 @@ export function RunawayNoButton({ alignRef, layoutReady = true }) {
     <>
       <div
         ref={slotRef}
-        className="flex h-[52px] min-w-[120px] shrink-0 items-center justify-center self-center"
-        aria-hidden
-      />
-
-      <motion.button
-        ref={buttonRef}
-        type="button"
-        aria-label={noButton.label}
-        tabIndex={-1}
-        onClick={preventClick}
-        onPointerDown={handleNearTap}
-        style={{
-          position: 'fixed',
-          left: 0,
-          top: 0,
-          x,
-          y,
-          zIndex: 50,
-          opacity,
-        }}
-        className="inline-flex h-[52px] items-center justify-center box-border min-w-[120px] cursor-default select-none rounded-[var(--radius-pill)] border-2 border-rose/30 bg-surface px-8 text-base font-medium leading-none text-ink-muted shadow-sm touch-none max-sm:transform-gpu"
+        className="relative flex h-[52px] min-w-[120px] shrink-0 items-center justify-center self-center"
       >
-        {noButton.label}
-      </motion.button>
+        <motion.button
+          ref={buttonRef}
+          type="button"
+          aria-label={noButton.label}
+          tabIndex={-1}
+          onClick={preventClick}
+          onPointerDown={handleNearTap}
+          style={{
+            position: 'absolute',
+            left: '50%',
+            top: '50%',
+            x,
+            y,
+            opacity,
+            translateX: '-50%',
+            translateY: '-50%',
+          }}
+          className="inline-flex h-[52px] items-center justify-center box-border min-w-[120px] cursor-default select-none rounded-[var(--radius-pill)] border-2 border-rose/30 bg-surface px-8 text-base font-medium leading-none text-ink-muted shadow-sm touch-none max-sm:transform-gpu"
+        >
+          {noButton.label}
+        </motion.button>
+      </div>
 
       <AnimatePresence mode="wait">
         {teaseIndex >= 0 && (
@@ -86,7 +85,7 @@ export function RunawayNoButton({ alignRef, layoutReady = true }) {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -4 }}
             transition={{ duration: 0.25 }}
-            className="pointer-events-none fixed bottom-8 left-1/2 z-50 max-w-[min(90vw,280px)] -translate-x-1/2 text-center text-sm font-medium text-rose-deep"
+            className="pointer-events-none fixed bottom-8 left-1/2 z-50 max-w-[min(90vw,280px)] -translate-x-1/2 pb-[env(safe-area-inset-bottom,0px)] text-center text-sm font-medium text-rose-deep"
             aria-live="polite"
           >
             {noButton.teasingLines[teaseIndex]}
