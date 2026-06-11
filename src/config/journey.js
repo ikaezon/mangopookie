@@ -99,7 +99,7 @@ export const saturday = {
     {
       id: 'cassel-earth',
       label: 'Cassel Earth',
-      hint: 'details coming from mango mando',
+      hint: 'coffee shop — lattes, matcha, slow morning vibes',
       icon: 'earth',
     },
     {

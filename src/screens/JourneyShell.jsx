@@ -18,6 +18,7 @@ export function JourneyShell({
   backDisabled = false,
   nextDisabled = false,
   centerNext = false,
+  mainScrollable = true,
   footer,
 }) {
   const reducedMotion = useReducedMotion()
@@ -83,11 +84,15 @@ export function JourneyShell({
         </p>
       </header>
 
-      <main className="relative z-[2] min-h-0 overflow-y-auto overscroll-contain px-gutter py-2">
+      <main
+        className={`relative z-[2] min-h-0 px-gutter py-1 ${
+          mainScrollable ? 'overflow-y-auto overscroll-contain' : 'overflow-hidden'
+        }`}
+      >
         <AnimatePresence mode="wait" initial={false}>
           <motion.div
             key={stepKey}
-            className="min-h-0"
+            className="h-full min-h-0"
             initial={reducedMotion ? false : { opacity: 0, x: 24 }}
             animate={{ opacity: 1, x: 0 }}
             exit={reducedMotion ? undefined : { opacity: 0, x: -24 }}

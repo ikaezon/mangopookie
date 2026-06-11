@@ -104,6 +104,7 @@ export default function App() {
       backDisabled={stepIndex <= 0}
       nextDisabled={selectionNextDisabled}
       centerNext={isWelcome}
+      mainScrollable={!isWelcome}
     />
   )
 }
