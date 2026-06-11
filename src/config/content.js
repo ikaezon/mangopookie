@@ -5,6 +5,8 @@
 
 export const sender = {
   name: 'Kaevon',
+  /** E.164 or US format for “text mango mando” — e.g. +16195551234 */
+  phone: '+19518807350',
 }
 
 export const recipient = {
@@ -38,11 +40,23 @@ export const yesButton = {
   label: 'Yes',
 }
 
-/** Default date: next Saturday 7:00 PM local (Pacific). Override ISO string as needed. */
-export const defaultDateTime = '2026-05-30T19:00:00'
+/** Default date: Friday June 12, 2026 7:00 PM local (Pacific). */
+export const defaultDateTime = '2026-06-12T19:00:00'
 
 /** Duration in minutes for calendar event */
 export const eventDurationMinutes = 120
+
+/** Weekend block for Apple Calendar (Fri evening → Sun midday) */
+export const weekendEvent = {
+  title: 'mangopookie weekend',
+  startIso: '2026-06-12T17:00:00',
+  endIso: '2026-06-14T12:00:00',
+  location: 'San Diego, CA',
+  details:
+    'Weekend with Kaevon — Friday night + Saturday plans. boy mango mando has you.',
+  fridayLabel: 'Friday, June 12, 2026',
+  saturdayLabel: 'Saturday, June 13, 2026',
+}
 
 export const venues = [
   {
@@ -83,7 +97,12 @@ export const confirmation = {
   message:
     'I cannot wait. Thank you for saying yes. I will take care of the rest.',
   signOff: (name) => `With love,\n${name}`,
-  calendarButton: 'Add to Google Calendar',
+  calendarButton: 'Add to Apple Calendar',
+  textMangoMando: 'Text mango mando',
+  textMangoMandoHint: 'Send me a quick yes so I know you’re in',
+  textMangoMandoBody:
+    'ur the best ex boyfriend ever mando commando boy mango baby yoda bear i cant wait for our weekend thx sm',
+  yourPicksLabel: 'Your picks',
 }
 
 /**
@@ -101,22 +120,21 @@ export function formatEventDateTime(isoString) {
   }).format(date)
 }
 
+function formatGoogleCalendarInstant(date) {
+  const pad = (n) => String(n).padStart(2, '0')
+  return (
+    `${date.getFullYear()}${pad(date.getMonth() + 1)}${pad(date.getDate())}` +
+    `T${pad(date.getHours())}${pad(date.getMinutes())}${pad(date.getSeconds())}`
+  )
+}
+
 /**
  * Parse ISO local datetime to Date parts for Google Calendar.
  */
 function toGoogleCalendarDate(isoString, durationMinutes) {
   const start = new Date(isoString)
   const end = new Date(start.getTime() + durationMinutes * 60 * 1000)
-
-  const format = (d) => {
-    const pad = (n) => String(n).padStart(2, '0')
-    return (
-      `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}` +
-      `T${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}`
-    )
-  }
-
-  return `${format(start)}/${format(end)}`
+  return `${formatGoogleCalendarInstant(start)}/${formatGoogleCalendarInstant(end)}`
 }
 
 /**
@@ -138,6 +156,81 @@ export function buildGoogleCalendarUrl({ venue, dateTimeIso, durationMinutes = e
     `&location=${location}` +
     `&ctz=America/Los_Angeles`
   )
+}
+
+const ICS_TIMEZONE = 'America/Los_Angeles'
+
+function escapeIcsText(value) {
+  return String(value)
+    .replace(/\\/g, '\\\\')
+    .replace(/;/g, '\\;')
+    .replace(/,/g, '\\,')
+    .replace(/\r?\n/g, '\\n')
+}
+
+function formatIcsLocalFromIso(isoString) {
+  const [datePart, timePart = '00:00:00'] = isoString.split('T')
+  const [year, month, day] = datePart.split('-')
+  const [hour, minute, second = '00'] = timePart.split(':')
+  return `${year}${month}${day}T${hour}${minute}${second.split('.')[0]}`
+}
+
+function formatIcsUtc(date) {
+  const pad = (n) => String(n).padStart(2, '0')
+  return (
+    `${date.getUTCFullYear()}${pad(date.getUTCMonth() + 1)}${pad(date.getUTCDate())}` +
+    `T${pad(date.getUTCHours())}${pad(date.getUTCMinutes())}${pad(date.getUTCSeconds())}Z`
+  )
+}
+
+/** ICS for the full mangopookie weekend (opens in Apple Calendar on iOS) */
+export function buildWeekendCalendarIcs() {
+  const lines = [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//mangopookie//EN',
+    'CALSCALE:GREGORIAN',
+    'METHOD:PUBLISH',
+    'BEGIN:VEVENT',
+    'UID:mangopookie-weekend-2026@kaevon',
+    `DTSTAMP:${formatIcsUtc(new Date())}`,
+    `DTSTART;TZID=${ICS_TIMEZONE}:${formatIcsLocalFromIso(weekendEvent.startIso)}`,
+    `DTEND;TZID=${ICS_TIMEZONE}:${formatIcsLocalFromIso(weekendEvent.endIso)}`,
+    `SUMMARY:${escapeIcsText(weekendEvent.title)}`,
+    `DESCRIPTION:${escapeIcsText(weekendEvent.details)}`,
+    `LOCATION:${escapeIcsText(weekendEvent.location)}`,
+    'END:VEVENT',
+    'END:VCALENDAR',
+  ]
+  return lines.join('\r\n')
+}
+
+/** Download weekend ICS — iOS opens Apple Calendar to add the event */
+export function addWeekendToAppleCalendar() {
+  const blob = new Blob([buildWeekendCalendarIcs()], {
+    type: 'text/calendar;charset=utf-8',
+  })
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.href = url
+  link.download = 'mangopookie-weekend.ics'
+  link.rel = 'noopener'
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
+  window.setTimeout(() => URL.revokeObjectURL(url), 0)
+}
+
+/** Opens iMessage to mango mando with the prefilled celebration text */
+export function buildMangoMandoSmsUrl() {
+  const body = encodeURIComponent(confirmation.textMangoMandoBody)
+  const digits = sender.phone?.replace(/\D/g, '')
+  if (!digits) {
+    return `sms:&body=${body}`
+  }
+  const normalized =
+    digits.length === 10 ? `1${digits}` : digits.startsWith('1') ? digits : `1${digits}`
+  return `sms:+${normalized}?body=${body}`
 }
 
 export function getDefaultVenue() {

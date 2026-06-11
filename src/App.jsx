@@ -1,70 +1,109 @@
-import { useState } from 'react'
-import { Hero } from './components/Hero'
-import { DateModal } from './components/DateModal'
+import { useCallback, useState } from 'react'
 import { Celebration } from './components/Celebration'
+import { JourneyShell } from './screens/JourneyShell'
+import { WelcomeScreen } from './screens/WelcomeScreen'
+import { ReadyScreen } from './screens/ReadyScreen'
+import { FridayScreen } from './screens/FridayScreen'
+import { SaturdayScreen } from './screens/SaturdayScreen'
+import { DateAskScreen } from './screens/DateAskScreen'
+import { recipient } from './config/content'
+import { STORY_STEPS, dateAsk } from './config/journey'
+import { useJourneyNavigation } from './hooks/useJourneyNavigation'
 import {
-  recipient,
-  venues,
-  defaultDateTime,
-  getDefaultVenue,
-} from './config/content'
-
-const FLOW = {
-  HERO: 'hero',
-  MODAL: 'modal',
-  CONFIRMED: 'confirmed',
-}
+  getFridayPickLabels,
+  getSaturdayPickLabels,
+} from './lib/journeySelections'
 
 export default function App() {
-  const [flow, setFlow] = useState(FLOW.HERO)
-  const [modalOpen, setModalOpen] = useState(false)
+  const [step, setStep] = useState(STORY_STEPS[0])
   const [confirmedDetails, setConfirmedDetails] = useState(null)
+  const [fridaySelectedIds, setFridaySelectedIds] = useState(() => new Set())
+  const [saturdaySelectedIds, setSaturdaySelectedIds] = useState(() => new Set())
 
-  const defaultVenue = getDefaultVenue()
+  const { goBack, goNext, stepIndex } = useJourneyNavigation({
+    step,
+    setStep,
+    fridaySelectedIds,
+    saturdaySelectedIds,
+    setSaturdaySelectedIds,
+  })
 
-  const handleYes = () => {
-    setModalOpen(true)
-    setFlow(FLOW.MODAL)
-  }
-
-  const handleModalClose = () => {
-    setModalOpen(false)
-    setFlow(FLOW.HERO)
-  }
-
-  const handleConfirm = ({ venue, dateTimeIso }) => {
-    setModalOpen(false)
-    setConfirmedDetails({ venue, dateTimeIso })
-    setFlow(FLOW.CONFIRMED)
-  }
+  const handleYes = useCallback(
+    (animationLocked = false) => {
+      if (animationLocked) return
+      setConfirmedDetails({
+        fridayPicks: getFridayPickLabels(fridaySelectedIds),
+        saturdayPicks: getSaturdayPickLabels(saturdaySelectedIds),
+      })
+    },
+    [fridaySelectedIds, saturdaySelectedIds],
+  )
 
   const handleRestart = () => {
     setConfirmedDetails(null)
-    setFlow(FLOW.HERO)
+    setFridaySelectedIds(new Set())
+    setSaturdaySelectedIds(new Set())
+    setStep(STORY_STEPS[0])
   }
 
-  if (flow === FLOW.CONFIRMED && confirmedDetails) {
+  const renderStep = useCallback(
+    (currentStep) => {
+      switch (currentStep) {
+        case 'welcome':
+          return <WelcomeScreen />
+        case 'ready':
+          return <ReadyScreen />
+        case 'friday':
+          return (
+            <FridayScreen
+              selectedIds={fridaySelectedIds}
+              onSelectionChange={setFridaySelectedIds}
+            />
+          )
+        case 'saturday':
+          return (
+            <SaturdayScreen
+              selectedIds={saturdaySelectedIds}
+              onSelectionChange={setSaturdaySelectedIds}
+            />
+          )
+        case 'dateAsk':
+          return <DateAskScreen />
+        default:
+          return null
+      }
+    },
+    [fridaySelectedIds, saturdaySelectedIds],
+  )
+
+  if (confirmedDetails) {
     return (
       <Celebration
         recipientName={recipient.name}
-        venue={confirmedDetails.venue}
-        dateTimeIso={confirmedDetails.dateTimeIso}
+        fridayPicks={confirmedDetails.fridayPicks}
+        saturdayPicks={confirmedDetails.saturdayPicks}
         onRestart={handleRestart}
       />
     )
   }
 
+  const isDateAsk = step === 'dateAsk'
+  const isWelcome = step === 'welcome'
+  const selectionNextDisabled =
+    (step === 'friday' && fridaySelectedIds.size === 0) ||
+    (step === 'saturday' && saturdaySelectedIds.size === 0)
+
   return (
-    <>
-      <Hero onYes={handleYes} />
-      <DateModal
-        open={modalOpen}
-        onClose={handleModalClose}
-        onConfirm={handleConfirm}
-        venues={venues}
-        defaultVenueId={defaultVenue.id}
-        defaultDateTime={defaultDateTime}
-      />
-    </>
+    <JourneyShell
+      stepKey={step}
+      renderStep={renderStep}
+      onBack={goBack}
+      onNext={isDateAsk ? handleYes : goNext}
+      nextLabel={isDateAsk ? dateAsk.yesLabel : 'Next'}
+      showBack={stepIndex > 0}
+      backDisabled={stepIndex <= 0}
+      nextDisabled={selectionNextDisabled}
+      centerNext={isWelcome}
+    />
   )
 }

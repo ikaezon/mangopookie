@@ -1,11 +1,11 @@
 import { motion } from 'motion/react'
-import { Heart, CalendarPlus } from '@phosphor-icons/react'
-import { MapPreview } from './MapPreview'
+import { Heart, CalendarPlus, ChatCircle } from '@phosphor-icons/react'
 import { FloatingHearts } from './FloatingHearts'
 import {
   confirmation,
-  formatEventDateTime,
-  buildGoogleCalendarUrl,
+  weekendEvent,
+  addWeekendToAppleCalendar,
+  buildMangoMandoSmsUrl,
   sender,
 } from '../config/content'
 import { useReducedMotion } from '../hooks/useReducedMotion'
@@ -47,9 +47,14 @@ function ConfettiPiece({ index, reducedMotion }) {
   )
 }
 
-export function Celebration({ recipientName, venue, dateTimeIso, onRestart }) {
+export function Celebration({
+  recipientName,
+  fridayPicks = [],
+  saturdayPicks = [],
+  onRestart,
+}) {
   const reducedMotion = useReducedMotion()
-  const calendarUrl = buildGoogleCalendarUrl({ venue, dateTimeIso })
+  const smsUrl = buildMangoMandoSmsUrl()
 
   return (
     <motion.section
@@ -101,24 +106,54 @@ export function Celebration({ recipientName, venue, dateTimeIso, onRestart }) {
           <p className="text-sm font-medium uppercase tracking-wide text-rose-deep">
             The plan
           </p>
-          <p className="mt-2 text-lg font-semibold text-ink">{venue.name}</p>
-          <p className="mt-1 text-ink-muted">{formatEventDateTime(dateTimeIso)}</p>
-          {venue.id !== 'surprise' && (
-            <div className="mt-4">
-              <MapPreview venue={venue} />
+          <p className="mt-2 text-lg font-semibold text-ink">
+            {weekendEvent.title}
+          </p>
+          <p className="mt-1 text-ink-muted">{weekendEvent.fridayLabel}</p>
+          <p className="text-ink-muted">{weekendEvent.saturdayLabel}</p>
+
+          {(fridayPicks.length > 0 || saturdayPicks.length > 0) && (
+            <div className="mt-4 space-y-2 border-t border-rose/10 pt-4">
+              <p className="text-xs font-semibold uppercase tracking-wide text-rose-deep">
+                {confirmation.yourPicksLabel}
+              </p>
+              {fridayPicks.length > 0 && (
+                <p className="text-sm text-ink-muted">
+                  <span className="font-medium text-ink">Friday:</span>{' '}
+                  {fridayPicks.join(' · ')}
+                </p>
+              )}
+              {saturdayPicks.length > 0 && (
+                <p className="text-sm text-ink-muted">
+                  <span className="font-medium text-ink">Saturday:</span>{' '}
+                  {saturdayPicks.join(' · ')}
+                </p>
+              )}
             </div>
           )}
         </div>
 
-        <a
-          href={calendarUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="mt-8 flex min-h-[52px] w-full items-center justify-center gap-2.5 rounded-[var(--radius-pill)] bg-rose px-6 py-3.5 text-base font-semibold text-white shadow-md transition-[background-color,transform,box-shadow] hover:bg-rose-deep hover:shadow-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose active:scale-[0.98]"
-        >
-          <CalendarPlus className="size-5" weight="bold" aria-hidden />
-          {confirmation.calendarButton}
-        </a>
+        <div className="mt-8 flex flex-col gap-3">
+          <button
+            type="button"
+            onClick={addWeekendToAppleCalendar}
+            className="flex min-h-[52px] w-full items-center justify-center gap-2.5 rounded-[var(--radius-pill)] bg-rose px-6 py-3.5 text-base font-semibold text-white shadow-md transition-[background-color,transform,box-shadow] hover:bg-rose-deep hover:shadow-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose active:scale-[0.98]"
+          >
+            <CalendarPlus className="size-5" weight="bold" aria-hidden />
+            {confirmation.calendarButton}
+          </button>
+
+          <a
+            href={smsUrl}
+            className="flex min-h-[52px] w-full items-center justify-center gap-2.5 rounded-[var(--radius-pill)] border-2 border-rose/25 bg-surface px-6 py-3.5 text-base font-semibold text-rose-deep shadow-sm transition-[background-color,transform,border-color] hover:border-rose/40 hover:bg-rose-soft focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose active:scale-[0.98]"
+          >
+            <ChatCircle className="size-5" weight="bold" aria-hidden />
+            {confirmation.textMangoMando}
+          </a>
+          <p className="text-center text-xs text-ink-muted">
+            {confirmation.textMangoMandoHint}
+          </p>
+        </div>
 
         <p className="mt-10 whitespace-pre-line text-center text-base font-medium text-ink-muted">
           {confirmation.signOff(sender.name)}
