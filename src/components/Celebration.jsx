@@ -9,6 +9,7 @@ import {
   sender,
 } from '../config/content'
 import { useReducedMotion } from '../hooks/useReducedMotion'
+import { getWeekendCountdownLabel } from '../lib/weekendCountdown'
 
 function ConfettiPiece({ index, reducedMotion }) {
   const colors = ['#e8799a', '#f4a4b8', '#d64d72', '#ffb4c8']
@@ -54,7 +55,8 @@ export function Celebration({
   onRestart,
 }) {
   const reducedMotion = useReducedMotion()
-  const smsUrl = buildMangoMandoSmsUrl()
+  const countdownLabel = getWeekendCountdownLabel()
+  const smsUrl = buildMangoMandoSmsUrl({ fridayPicks, saturdayPicks })
 
   return (
     <motion.section
@@ -102,7 +104,11 @@ export function Celebration({
           {confirmation.message}
         </p>
 
-        <div className="mt-8 rounded-[var(--radius-card)] border border-rose/15 bg-surface p-5 shadow-sm">
+        <p className="mt-3 text-center text-sm font-semibold tracking-wide text-rose-deep">
+          {countdownLabel}
+        </p>
+
+        <div className="mt-6 rounded-[var(--radius-card)] border border-rose/15 bg-surface p-5 shadow-sm">
           <p className="text-sm font-medium uppercase tracking-wide text-rose-deep">
             The plan
           </p>

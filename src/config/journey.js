@@ -64,6 +64,10 @@ export const friday = {
   dayLabel: 'Friday',
   dateLabel: 'June 12, 2026',
   activitiesPrompt: 'tap what you’re excited for ♡',
+  fortniteToast: {
+    headline: 'duo queue',
+    status: 'matching',
+  },
   activities: [
     { id: 'wine', label: 'wine', icon: 'wine', hint: 'glasses up' },
     { id: 'fortnite', label: 'Fortnite', icon: 'game', hint: 'duo queue' },

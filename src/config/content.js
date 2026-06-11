@@ -103,6 +103,9 @@ export const confirmation = {
   textMangoMandoBody:
     'ur the best ex boyfriend ever mando commando boy mango baby yoda bear i cant wait for our weekend thx sm',
   yourPicksLabel: 'Your picks',
+  countdownToday: 'it’s mango weekend 🥭',
+  countdownOneDay: '1 day until mangopookie weekend',
+  countdownDays: (days) => `${days} days until mangopookie weekend`,
 }
 
 /**
@@ -221,9 +224,14 @@ export function addWeekendToAppleCalendar() {
   window.setTimeout(() => URL.revokeObjectURL(url), 0)
 }
 
-/** Opens iMessage to mango mando with the prefilled celebration text */
-export function buildMangoMandoSmsUrl() {
-  const body = encodeURIComponent(confirmation.textMangoMandoBody)
+/** Opens iMessage to mango mando with celebration text + her itinerary picks */
+export function buildMangoMandoSmsUrl({ fridayPicks = [], saturdayPicks = [] } = {}) {
+  const lines = [
+    confirmation.textMangoMandoBody,
+    fridayPicks.length > 0 ? `Friday: ${fridayPicks.join(', ')}` : null,
+    saturdayPicks.length > 0 ? `Saturday: ${saturdayPicks.join(', ')}` : null,
+  ].filter(Boolean)
+  const body = encodeURIComponent(lines.join('\n'))
   const digits = sender.phone?.replace(/\D/g, '')
   if (!digits) {
     return `sms:&body=${body}`

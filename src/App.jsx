@@ -13,6 +13,7 @@ import {
   getFridayPickLabels,
   getSaturdayPickLabels,
 } from './lib/journeySelections'
+import { hapticConfirm } from './lib/haptics'
 
 export default function App() {
   const [step, setStep] = useState(STORY_STEPS[0])
@@ -31,6 +32,7 @@ export default function App() {
   const handleYes = useCallback(
     (animationLocked = false) => {
       if (animationLocked) return
+      hapticConfirm()
       setConfirmedDetails({
         fridayPicks: getFridayPickLabels(fridaySelectedIds),
         saturdayPicks: getSaturdayPickLabels(saturdaySelectedIds),
